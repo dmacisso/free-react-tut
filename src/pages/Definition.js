@@ -41,13 +41,13 @@ export default function Definition() {
       .catch((error) => {
         console.log(error.message);
       });
-  }, []);
+  }, [navigate, search]);
 
   if (notFound === true) {
     return (
       <>
         <NotFound />
-        <Link to="/dictionary">Search another</Link>
+        <Link to="/dictionary">Try again 🤞</Link>
       </>
     );
   }
@@ -56,7 +56,7 @@ export default function Definition() {
     return (
       <>
         <p>Something Went Wrong.. 😡</p>
-        <Link to="/dictionary">Try Again..</Link>
+        <Link to="/dictionary">Try Again.. 🤞</Link>
       </>
     );
   }
@@ -66,8 +66,8 @@ export default function Definition() {
       {word ? (
         <>
           <h1>
-            Here is a definition of{' '}
-            <span className="text-blue-600 italic"> "{search}"</span>{' '}
+            Here is a definition of
+            <span className="text-blue-600 italic"> "{search}"</span>
           </h1>
 
           {word.map((meaning) => {
@@ -79,7 +79,7 @@ export default function Definition() {
           })}
           <p>Search Another</p>
           <DefinitionSearch />
-          <Link to="/dictionary">Search another</Link>
+          {/* <Link to="/dictionary">Search another</Link> */}
         </>
       ) : null}
     </>
