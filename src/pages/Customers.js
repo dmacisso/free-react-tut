@@ -7,6 +7,11 @@ import AddCustomer from '../components/AddCustomer';
 
 function Customers() {
   const [customers, setCustomers] = useState('');
+  const [show, setShow] = useState(false);
+
+  function toggleShow() {
+    setShow(!show);
+  }
 
   useEffect(() => {
     const url = `${baseUrl}api/customers/`;
@@ -35,6 +40,9 @@ function Customers() {
         return response.json();
       })
       .then((data) => {
+        toggleShow();
+        console.log(data);
+        setCustomers([...customers, data.customer]);
         // assume add was successful
         // hide the Modal
         // make sure the list is updated appropriately
@@ -43,19 +51,29 @@ function Customers() {
   }
   return (
     <>
-      <ul>
-        <h1>Here are our Customers:</h1>
-        {customers
-          ? customers.map((customer) => {
-              return (
-                <li key={customer.id}>
-                  <Link to={`/customers/${customer.id}`}>{customer.name}</Link>;
-                </li>
-              );
-            })
-          : null}
-      </ul>
-      <AddCustomer newCustomer={newCustomer} />
+      <h1>Here are our Customers:</h1>
+      {customers
+        ? customers.map((customer) => {
+            return (
+              <div className="m-2" key={customer.id}>
+                <Link to={`/customers/${customer.id}`}>
+                  <button
+                    className="no-underline bg-purple-600 hover:bg-slate-500 text-white font-bold
+              py-2 px-4 rounded"
+                  >
+                    {customer.name}
+                  </button>
+                </Link>
+              </div>
+            );
+          })
+        : null}
+
+      <AddCustomer
+        show={show}
+        toggleShow={toggleShow}
+        newCustomer={newCustomer}
+      />
     </>
   );
 }
