@@ -1,6 +1,7 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState, useContext } from 'react';
 import { baseUrl } from '../shared';
+import { LoginContext } from '../App';
 
 // Components
 import NotFound from '../components/NotFound';
@@ -8,6 +9,8 @@ import NotFound from '../components/NotFound';
 export default function Customer() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [LoggedIn, setLoggedIn] = useContext(LoginContext);
 
   const [customer, setCustomer] = useState();
   const [tempCustomer, setTempCustomer] = useState();
@@ -32,14 +35,29 @@ export default function Customer() {
 
   useEffect(() => {
     const url = `${baseUrl}api/customers/${id}`;
-    fetch(url)
+
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('access'),
+    };
+
+    fetch(url, { headers })
       .then((res) => {
         if (res.status === 404) {
           //* redirect to a 404 page (new URL)
           // navigate('/404');
           //* render a 404 component on this page
+
           setNotFound(true);
+        } else if (res.status === 401) {
+          setLoggedIn(false);
+          navigate('/login', {
+            state: {
+              previousUrl: location.pathname,
+            },
+          });
         }
+
         if (!res.ok) {
           // console.log('response ', res);
           throw new Error('Something went wrong');
@@ -65,11 +83,20 @@ export default function Customer() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('access'),
       },
       body: JSON.stringify(tempCustomer),
     })
       .then((response) => {
         console.log('response: ', response);
+        if (response.status === 401) {
+          setLoggedIn(false);
+          navigate('/login', {
+            state: {
+              previousUrl: location.pathname,
+            },
+          });
+        }
         if (!response.ok) throw new Error('Something went wrong');
         return response.json();
       })
@@ -146,7 +173,7 @@ export default function Customer() {
                 Cancel
               </button>
               <button
-                className="bg-purple-400 hover:bg-slate-500 text-white font-bold
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold
               py-2 px-4 rounded"
                 form="customer"
               >
@@ -162,9 +189,20 @@ export default function Customer() {
                 const url = baseUrl + 'api/customers/' + id;
                 fetch(url, {
                   method: 'DELETE',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + localStorage.getItem('access'),
+                  },
                 })
                   .then((response) => {
+                    if (response.status === 401) {
+                      setLoggedIn(false);
+                      navigate('/login', {
+                        state: {
+                          previousUrl: location.pathname,
+                        },
+                      });
+                    }
                     if (!response.ok) {
                       throw new Error('Something went wrong when fetching');
                     }

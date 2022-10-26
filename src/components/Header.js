@@ -1,14 +1,15 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Fragment } from 'react';
+import { useContext, useEffect } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { NavLink } from 'react-router-dom';
+import { LoginContext } from '../App';
+import { computeHeadingLevel } from '@testing-library/react';
 
 const navigation = [
   { name: 'Employees', href: '/Employees' },
   { name: 'Customers', href: '/customers' },
   { name: 'Dictionary', href: '/dictionary' },
-  { name: 'Calendar', href: '/other2' },
 ];
 
 function classNames(...classes) {
@@ -16,6 +17,8 @@ function classNames(...classes) {
 }
 
 export default function Header(props) {
+  const [loggedIn, setLoggedIn] = useContext(LoginContext);
+
   return (
     <>
       <Disclosure as="nav" className="bg-gray-800">
@@ -53,6 +56,25 @@ export default function Header(props) {
                           {item.name}
                         </NavLink>
                       ))}
+                      {loggedIn ? (
+                        <NavLink
+                          to={'/login'}
+                          onClick={() => {
+                            setLoggedIn(false);
+                            localStorage.clear();
+                          }}
+                          className="px-3 py-2 rounded-md text-sm font-medium no-underline no-underline bg-gray-900 text-white"
+                        >
+                          Logout
+                        </NavLink>
+                      ) : (
+                        <NavLink
+                          to={'/login'}
+                          className="px-3 py-2 rounded-md text-sm font-medium no-underline no-underline bg-gray-900 text-white"
+                        >
+                          Login
+                        </NavLink>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -77,7 +99,7 @@ export default function Header(props) {
                     className={({ isActive }) => {
                       return (
                         'block px-3 py-2 rounded-md text-base font-medium no-underline ' +
-                        (isActive
+                        (!isActive
                           ? 'no-underline bg-gray-900 text-white'
                           : 'no-underline text-gray-300 hover:bg-gray-700 hover:text-white')
                       );
@@ -86,6 +108,26 @@ export default function Header(props) {
                     {item.name}
                   </NavLink>
                 ))}
+
+                {loggedIn ? (
+                  <NavLink
+                    to={'/login'}
+                    onClick={() => {
+                      setLoggedIn(false);
+                      localStorage.clear();
+                    }}
+                    className="px-3 py-2 rounded-md text-sm font-medium no-underline no-underline bg-gray-900 text-white"
+                  >
+                    Logout
+                  </NavLink>
+                ) : (
+                  <NavLink
+                    to={'/login'}
+                    className="block px-3 py-2 rounded-md text-base font-medium no-underline no-underline bg-gray-900 text-white "
+                  >
+                    Login
+                  </NavLink>
+                )}
               </div>
             </Disclosure.Panel>
             <footer>Example</footer>

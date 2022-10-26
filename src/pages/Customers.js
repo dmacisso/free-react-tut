@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
-import { json, Link } from 'react-router-dom';
+import { useEffect, useState, useContext } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { baseUrl } from '../shared';
+import { LoginContext } from '../App';
 
 // components
 import AddCustomer from '../components/AddCustomer';
 
 function Customers() {
+  const [loggedIn, setLoggedIn] = useContext(LoginContext);
   const [customers, setCustomers] = useState('');
   const [show, setShow] = useState(false);
 
@@ -13,10 +15,29 @@ function Customers() {
     setShow(!show);
   }
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     const url = `${baseUrl}api/customers/`;
-    fetch(url)
-      .then((res) => res.json())
+
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + localStorage.getItem('access'),
+    };
+
+    fetch(url, { headers })
+      .then((res) => {
+        if (res.status === 401) {
+          setLoggedIn(false);
+          navigate('/login', {
+            state: {
+              previousUrl: location.pathname,
+            },
+          });
+        }
+        return res.json();
+      })
       .then((data) => {
         // console.log(data);
         setCustomers(data.customers);
@@ -30,6 +51,7 @@ function Customers() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('access'),
       },
       body: JSON.stringify(data),
     })
